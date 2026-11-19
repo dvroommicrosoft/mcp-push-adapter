@@ -1,6 +1,6 @@
 {
   "name": "push-adapter",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,16 @@
   },
   "bin": {
     "push-adapter-acp": "./acp-host/host.mjs"
-  }
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "files": [
+    "src",
+    "acp-host",
+    "copilot-extension",
+    "examples",
+    "scripts",
+    "push-adapter.example.json"
+  ]
 }

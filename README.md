@@ -88,3 +88,5 @@ curl -X POST localhost:8788 -H 'X-Sender: dev' -d 'yes abcde'   # answer a relay
 ```sh
 npm test   # hub tests against the example webhook channel
 ```
+
+Every push to `main` runs the tests and publishes a GitHub release with an `npm pack` tarball ([.github/workflows/release.yml](.github/workflows/release.yml)). The version bump comes from the commit messages since the last tag: `feat:` bumps minor, `type!:` or `BREAKING CHANGE` bumps major, and anything else bumps patch.

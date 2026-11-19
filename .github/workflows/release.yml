@@ -1,0 +1,74 @@
+# Every push to main: run tests, then tag and publish a GitHub release.
+# Version bump comes from the commits since the last tag (conventional commits):
+#   "BREAKING CHANGE" or "type!:" -> major, "feat:" -> minor, anything else -> patch.
+# With no tags yet, the version in package.json is released as-is.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Compute next version
+        id: version
+        run: |
+          last=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
+          if [ -z "$last" ]; then
+            next=$(node -p "require('./package.json').version")
+          else
+            log=$(git log "$last..HEAD" --format='%s%n%b')
+            if [ -z "$(git rev-list "$last..HEAD")" ]; then
+              echo "No commits since $last; nothing to release."
+              exit 0
+            fi
+            IFS=. read -r major minor patch <<< "${last#v}"
+            if grep -qE '^[a-z]+(\([^)]*\))?!:|BREAKING CHANGE' <<< "$log"; then
+              major=$((major + 1)); minor=0; patch=0
+            elif grep -qE '^feat(\([^)]*\))?:' <<< "$log"; then
+              minor=$((minor + 1)); patch=0
+            else
+              patch=$((patch + 1))
+            fi
+            next="$major.$minor.$patch"
+          fi
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          echo "Releasing v$next (previous: ${last:-none})"
+
+      - name: Package
+        if: steps.version.outputs.next
+        run: |
+          npm version "${{ steps.version.outputs.next }}" --no-git-tag-version --allow-same-version
+          npm pack
+
+      - name: Create release
+        if: steps.version.outputs.next
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.next }}" push-adapter-*.tgz \
+            --target "$GITHUB_SHA" \
+            --title "v${{ steps.version.outputs.next }}" \
+            --generate-notes
