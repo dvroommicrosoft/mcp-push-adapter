@@ -1,0 +1,23 @@
+{
+  "name": "push-adapter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "PUSH_ADAPTER_LOCK_DIR=$(mktemp -d) node --test --test-timeout=10000 test/*.test.mjs",
+    "acp": "node acp-host/host.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@agentclientprotocol/sdk": "^2.5.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "bin": {
+    "push-adapter-acp": "./acp-host/host.mjs"
+  }
+}

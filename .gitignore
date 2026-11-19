@@ -1,0 +1,8 @@
+node_modules/
+# Local channel config (copy from push-adapter.example.json)
+push-adapter.json
+.github/push-adapter.json
+.DS_Store
+*.log
+.env
+.env.*

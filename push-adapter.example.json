@@ -1,0 +1,11 @@
+{
+  "channels": {
+    "webhook": {
+      "command": "node",
+      "args": ["./examples/webhook-channel.mjs"],
+      "env": { "WEBHOOK_PORT": "8788", "WEBHOOK_ALLOWED_SENDERS": "dev" }
+    }
+  },
+  "deliveryMode": "enqueue",
+  "permissionRelay": true
+}
